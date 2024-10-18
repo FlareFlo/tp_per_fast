@@ -8,10 +8,11 @@ use std::net::{Ipv6Addr, SocketAddrV6, TcpListener};
 use std::os::fd::{AsFd, AsRawFd};
 use std::sync::Arc;
 use std::thread::{sleep};
-use std::time::Duration;
-use geo::{Contains, Geometry, Point};
+use std::time::{Duration, Instant};
+use geo::{Contains, Coord, Coordinate, Geometry, Point, Rect};
 use prost::Message;
 use wkt::TryFromWkt;
+use crate::binary_search::BinarySearch;
 use crate::protobufs::{File, ProtobufBezirk};
 use crate::reader_thread::reader_thread;
 
@@ -24,8 +25,10 @@ pub mod protobufs {
 pub struct BezirkLUT {
     raw: Vec<ProtobufBezirk>,
     naive_linear: Vec<Bezirk>,
+    binary_search: BinarySearch,
 }
 
+#[derive(Clone, Debug)]
 pub struct Bezirk {
     pub identifier: u64,
     pub parents: Vec<u64>,
@@ -35,7 +38,7 @@ pub struct Bezirk {
 
 impl BezirkLUT {
     pub fn new(b: File) -> Self {
-        let parsed = b.bezirke.iter()
+        let parsed: Vec<_> = b.bezirke.iter()
             .map(|e|{
                 Bezirk {
                     identifier: e.identifier,
@@ -46,6 +49,7 @@ impl BezirkLUT {
             }).collect();
 
         Self {
+            binary_search: BinarySearch::new(10, Rect::new(Coord { x: 7.042, y:  53.745 }, Coord { x:14.019 , y: 47.588 }), &parsed),
             raw: b.bezirke,
             naive_linear: parsed,
         }
@@ -56,9 +60,7 @@ impl BezirkLUT {
     }
 
      pub fn binary_lookup(&self, lat: f64, long: f64) -> Option<&str> {
-        // let p: Geometry = (Point::from((long, lat))).try_into().unwrap();
-        // self.parsed.iter().rev().find(|e|e.location.contains(&p).unwrap()).map(|e|e.name.as_str())
-         todo!()
+       Some(self.binary_search.lookup(Point::new(long, lat))?.name.as_str())
     }
 }
 

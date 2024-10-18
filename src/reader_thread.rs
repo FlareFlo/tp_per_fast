@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 use std::net::{SocketAddr, TcpStream};
 use std::sync::Arc;
 use std::thread::{sleep, spawn};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use prost::Message;
 use crate::BezirkLUT;
 use crate::protobufs::client_message::Request;
@@ -24,7 +24,9 @@ pub fn reader_thread(mut socket: TcpStream, lut: Arc<BezirkLUT>) {
 			response.set_code(Code::Ok);
 
 			if let Some(Request::Location(location_request)) = request.request {
-				let res = lut.naive_lookup(location_request.latitude, location_request.longitude);
+				let start = Instant::now();
+				let res = lut.binary_lookup(location_request.latitude, location_request.longitude);
+				// dbg!(start.elapsed(), res);
 				if let Some(res) = res {
 					response.response = Some(Response::Location(LocationUpdateResponse{
 						car_id: location_request.car_id,
