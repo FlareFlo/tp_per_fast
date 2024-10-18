@@ -11,8 +11,8 @@ prost = "0.13"
 prost-types = "0.13"
 tungstenite = "0.24.0"
 signal-hook = "0.3.17"
-geos = { version = "9.0.0", features = ["geo"] }
-geo-types = "0.7.13"
+geo = "0.28.0"
+wkt = "0.11"
 
 [build-dependencies]
 prost-build = "0.13"

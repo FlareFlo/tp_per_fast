@@ -1,6 +1,6 @@
 mod reader_thread;
+mod binary_search;
 
-use geo_types::Point;
 use nix::sys::socket::sockopt::ReusePort;
 use nix::sys::socket;
 use std::fs;
@@ -9,8 +9,9 @@ use std::os::fd::{AsFd, AsRawFd};
 use std::sync::Arc;
 use std::thread::{sleep};
 use std::time::Duration;
-use geos::{Geom, Geometry};
+use geo::{Contains, Geometry, Point};
 use prost::Message;
+use wkt::TryFromWkt;
 use crate::protobufs::{File, ProtobufBezirk};
 use crate::reader_thread::reader_thread;
 
@@ -22,7 +23,7 @@ pub mod protobufs {
 
 pub struct BezirkLUT {
     raw: Vec<ProtobufBezirk>,
-    parsed: Vec<Bezirk>,
+    naive_linear: Vec<Bezirk>,
 }
 
 pub struct Bezirk {
@@ -40,19 +41,24 @@ impl BezirkLUT {
                     identifier: e.identifier,
                     parents: e.parents.clone(),
                     name: e.name.clone(),
-                    location: Geometry::new_from_wkt(&e.wkt).unwrap(),
+                    location: Geometry::try_from_wkt_str(&e.wkt).unwrap(),
                 }
             }).collect();
 
         Self {
             raw: b.bezirke,
-            parsed,
+            naive_linear: parsed,
         }
     }
 
     pub fn naive_lookup(&self, lat: f64, long: f64) -> Option<&str> {
-        let p: Geometry = (Point::from((long, lat))).try_into().unwrap();
-        self.parsed.iter().rev().find(|e|e.location.contains(&p).unwrap()).map(|e|e.name.as_str())
+        self.naive_linear.iter().rev().find(|e|e.location.contains(&Point::from((long, lat)))).map(|e| e.name.as_str())
+    }
+
+     pub fn binary_lookup(&self, lat: f64, long: f64) -> Option<&str> {
+        // let p: Geometry = (Point::from((long, lat))).try_into().unwrap();
+        // self.parsed.iter().rev().find(|e|e.location.contains(&p).unwrap()).map(|e|e.name.as_str())
+         todo!()
     }
 }
 
