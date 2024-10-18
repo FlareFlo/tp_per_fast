@@ -1,17 +1,25 @@
-use std::io::{Read, Write};
-use std::net::{SocketAddr, TcpStream};
-use std::sync::Arc;
-use std::thread::{sleep, spawn};
-use std::time::{Duration, Instant};
+use std::{
+	io::{Read, Write},
+	net::{SocketAddr, TcpStream},
+	sync::Arc,
+	thread::{sleep, spawn},
+	time::{Duration, Instant},
+};
+
 use prost::Message;
-use crate::BezirkLUT;
-use crate::protobufs::client_message::Request;
-use crate::protobufs::client_response::{Code, Response};
-use crate::protobufs::LocationUpdateResponse;
+
+use crate::{
+	protobufs::{
+		client_message::Request,
+		client_response::{Code, Response},
+		LocationUpdateResponse,
+	},
+	BezirkLUT,
+};
 
 pub fn reader_thread(mut socket: TcpStream, lut: Arc<BezirkLUT>) {
-	let _handle = spawn(move ||{
-		loop  {
+	let _handle = spawn(move || {
+		loop {
 			let mut response = crate::protobufs::ClientResponse::default();
 			let len = &mut [0; 4];
 			socket.read_exact(len).unwrap();
@@ -27,19 +35,18 @@ pub fn reader_thread(mut socket: TcpStream, lut: Arc<BezirkLUT>) {
 				let start = Instant::now();
 				let res = lut.binary_lookup(location_request.latitude, location_request.longitude);
 				// dbg!(start.elapsed(), res);
-				if let Some(res) = res {
-					response.response = Some(Response::Location(LocationUpdateResponse{
-						car_id: location_request.car_id,
-						location: res.to_string(),
-					}))
-				} else {
-					response.set_code(Code::Error);
-				}
-
+				response.response = Some(Response::Location(LocationUpdateResponse {
+					car_id:   location_request.car_id,
+					location: res.unwrap_or_default().to_string(),
+				}))
 			}
 			let res_parsed = response.encode_to_vec();
-			socket.write_all(&(res_parsed.len() as u32).to_be_bytes()).unwrap();
-			socket.write_all(response.encode_to_vec().as_slice()).unwrap();
+			socket
+				.write_all(&(res_parsed.len() as u32).to_be_bytes())
+				.unwrap();
+			socket
+				.write_all(response.encode_to_vec().as_slice())
+				.unwrap();
 		}
 	});
 }
