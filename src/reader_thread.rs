@@ -36,7 +36,7 @@ pub fn reader_thread(mut socket: TcpStream, lut: Arc<BezirkLUT>) {
 
 			}
 			let res_parsed = response.encode_to_vec();
-			socket.write_all(&(res_parsed.len() as u32).to_ne_bytes()).unwrap();
+			socket.write_all(&(res_parsed.len() as u32).to_be_bytes()).unwrap();
 			socket.write_all(response.encode_to_vec().as_slice()).unwrap();
 		}
 	});

@@ -52,7 +52,7 @@ impl BezirkLUT {
 
     pub fn naive_lookup(&self, lat: f64, long: f64) -> Option<&str> {
         let p: Geometry = (Point::from((long, lat))).try_into().unwrap();
-        self.parsed.iter().find(|e|e.location.contains(&p).unwrap()).map(|e|e.name.as_str())
+        self.parsed.iter().rev().find(|e|e.location.contains(&p).unwrap()).map(|e|e.name.as_str())
     }
 }
 
