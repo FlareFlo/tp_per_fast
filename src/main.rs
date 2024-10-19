@@ -1,5 +1,5 @@
-mod binary_search;
 mod reader_thread;
+mod geo_to_bezirk;
 
 use std::{
 	fs,
@@ -7,19 +7,19 @@ use std::{
 	os::fd::{AsFd, AsRawFd},
 	sync::Arc,
 	thread::sleep,
-	time::{Duration, Instant},
+	time::Duration,
 };
 
-use geo::{Contains, Coord, Coordinate, Geometry, Point, Rect};
+use geo::{Contains, Coord, Geometry, Point, Rect};
 use nix::sys::{socket, socket::sockopt::ReusePort};
 use prost::Message;
 use wkt::TryFromWkt;
-
+use geo_to_bezirk::binary_search::BinarySearch;
 use crate::{
-	binary_search::BinarySearch,
 	protobufs::{File, ProtobufBezirk},
 	reader_thread::reader_thread,
 };
+use crate::geo_to_bezirk::GeoToBezirk;
 
 pub mod protobufs {
 	pub use Bezirk as ProtobufBezirk;
@@ -27,10 +27,8 @@ pub mod protobufs {
 	include!(concat!(env!("OUT_DIR"), "/wire.rs"));
 }
 
-pub struct BezirkLUT {
-	raw:           Vec<ProtobufBezirk>,
-	naive_linear:  Vec<Bezirk>,
-	binary_search: BinarySearch,
+pub struct BezirkeData {
+	pub data:           Vec<Bezirk>,
 }
 
 #[derive(Clone, Debug)]
@@ -41,7 +39,7 @@ pub struct Bezirk {
 	pub location:   Geometry,
 }
 
-impl BezirkLUT {
+impl BezirkeData {
 	pub fn new(b: File) -> Self {
 		let parsed: Vec<_> = b
 			.bezirke
@@ -55,40 +53,8 @@ impl BezirkLUT {
 			.collect();
 
 		Self {
-			binary_search: BinarySearch::new(
-				10,
-				Rect::new(
-					Coord {
-						x: 7.042,
-						y: 53.745,
-					},
-					Coord {
-						x: 14.019,
-						y: 47.588,
-					},
-				),
-				&parsed,
-			),
-			raw:           b.bezirke,
-			naive_linear:  parsed,
+			data:           parsed,
 		}
-	}
-
-	pub fn naive_lookup(&self, lat: f64, long: f64) -> Option<&str> {
-		self.naive_linear
-			.iter()
-			.rev()
-			.find(|e| e.location.contains(&Point::from((long, lat))))
-			.map(|e| e.name.as_str())
-	}
-
-	pub fn binary_lookup(&self, lat: f64, long: f64) -> Option<&str> {
-		Some(
-			self.binary_search
-				.lookup(Point::new(long, lat))?
-				.name
-				.as_str(),
-		)
 	}
 }
 
@@ -99,7 +65,8 @@ fn main() {
 			.as_slice(),
 	)
 	.unwrap();
-	let lut = Arc::new(BezirkLUT::new(bezirke));
+	let bezirke = BezirkeData::new(bezirke);
+	let lut = Arc::new(BinarySearch::new_with_defaults(10, bezirke));
 
 	let port = 1234;
 	let addr = SocketAddrV6::new(Ipv6Addr::UNSPECIFIED, port, 0, 0);

@@ -14,10 +14,11 @@ use crate::{
 		client_response::{Code, Response},
 		LocationUpdateResponse,
 	},
-	BezirkLUT,
+	BezirkeData,
 };
+use crate::geo_to_bezirk::GeoToBezirk;
 
-pub fn reader_thread(mut socket: TcpStream, lut: Arc<BezirkLUT>) {
+pub fn reader_thread(mut socket: TcpStream, lut: Arc<impl GeoToBezirk + Sync + Send + 'static>) {
 	let _handle = spawn(move || {
 		loop {
 			let mut response = crate::protobufs::ClientResponse::default();
@@ -32,12 +33,10 @@ pub fn reader_thread(mut socket: TcpStream, lut: Arc<BezirkLUT>) {
 			response.set_code(Code::Ok);
 
 			if let Some(Request::Location(location_request)) = request.request {
-				let start = Instant::now();
-				let res = lut.binary_lookup(location_request.latitude, location_request.longitude);
-				// dbg!(start.elapsed(), res);
+				let res = lut.lookup(location_request.latitude, location_request.longitude);
 				response.response = Some(Response::Location(LocationUpdateResponse {
 					car_id:   location_request.car_id,
-					location: res.unwrap_or_default().to_string(),
+					location: res.map(|e|e.name.clone()).unwrap_or_default(),
 				}))
 			}
 			let res_parsed = response.encode_to_vec();
