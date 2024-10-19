@@ -1,4 +1,3 @@
-use geo::Point;
 use crate::Bezirk;
 
 pub mod binary_search;

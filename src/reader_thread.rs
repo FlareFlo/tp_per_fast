@@ -1,21 +1,17 @@
 use std::{
 	io::{Read, Write},
-	net::{SocketAddr, TcpStream},
+	net::TcpStream,
 	sync::Arc,
-	thread::{sleep, spawn},
-	time::{Duration, Instant},
+	thread::spawn,
 };
 
 use prost::Message;
 
-use crate::{
-	protobufs::{
+use crate::protobufs::{
 		client_message::Request,
 		client_response::{Code, Response},
 		LocationUpdateResponse,
-	},
-	BezirkeData,
-};
+	};
 use crate::geo_to_bezirk::GeoToBezirk;
 
 pub fn reader_thread(mut socket: TcpStream, lut: Arc<impl GeoToBezirk + Sync + Send + 'static>) {

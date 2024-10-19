@@ -4,22 +4,21 @@ mod geo_to_bezirk;
 use std::{
 	fs,
 	net::{Ipv6Addr, SocketAddrV6, TcpListener},
-	os::fd::{AsFd, AsRawFd},
+	os::fd::AsFd,
 	sync::Arc,
 	thread::sleep,
 	time::Duration,
 };
 
-use geo::{Contains, Coord, Geometry, Point, Rect};
+use geo::Geometry;
 use nix::sys::{socket, socket::sockopt::ReusePort};
 use prost::Message;
 use wkt::TryFromWkt;
 use geo_to_bezirk::binary_search::BinarySearch;
 use crate::{
-	protobufs::{File, ProtobufBezirk},
+	protobufs::File,
 	reader_thread::reader_thread,
 };
-use crate::geo_to_bezirk::GeoToBezirk;
 
 pub mod protobufs {
 	pub use Bezirk as ProtobufBezirk;

@@ -1,4 +1,4 @@
-use geo::{Contains, Coord, Geometry, Intersects, Point, Rect};
+use geo::{Contains, Coord, Intersects, Point, Rect};
 
 use crate::{Bezirk, BezirkeData};
 use crate::geo_to_bezirk::GeoToBezirk;
