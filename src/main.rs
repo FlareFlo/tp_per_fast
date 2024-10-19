@@ -72,10 +72,6 @@ fn main() {
 	let server = TcpListener::bind(addr).unwrap();
 	socket::setsockopt(&server.as_fd(), ReusePort, &true).unwrap();
 
-	// unsafe {
-	//     signal_hook::low_level::signal(signal_hook::consts::SIGPIPE, signal_hook::low_level::SigHandler::SigIgn).unwrap();
-	// }
-
 	for stream in server.incoming() {
 		match stream {
 			Ok(socket) => {
