@@ -13,5 +13,14 @@ signal-hook = "0.3.17"
 geo = "0.28.0"
 wkt = "0.11"
 
+[[bin]]
+name = "server"
+path = "src/main.rs"
+
+[[bin]]
+name = "visualizer"
+path = "src/visualizer.rs"
+
+
 [build-dependencies]
 prost-build = "0.13"
