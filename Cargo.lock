@@ -577,6 +577,7 @@ dependencies = [
  "prost",
  "prost-build",
  "prost-types",
+ "rstar",
  "signal-hook",
  "wkt",
 ]
