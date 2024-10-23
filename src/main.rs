@@ -1,6 +1,8 @@
 mod reader_thread;
 mod geo_to_bezirk;
+mod stattrack;
 
+use crate::geo_to_bezirk::rtree::RStarTree;
 use std::{
 	fs,
 	net::{Ipv6Addr, SocketAddrV6, TcpListener},
@@ -59,13 +61,14 @@ impl BezirkeData {
 
 fn main() {
 	let bezirke = protobufs::File::decode(
-		fs::read("/home/flareflo/tp_per/group-b/geodata/build/bezirke-12.geodata")
+		fs::read("/home/flareflo/tp_per/group-b/geodata/result/geodata/bezirke-12.geodata")
 			.unwrap()
 			.as_slice(),
 	)
 	.unwrap();
 	let bezirke = BezirkeData::new(bezirke);
-	let lut = Arc::new(BinarySearch::new_with_defaults(10, bezirke));
+	let lut = Arc::new(RStarTree::new(bezirke.data));
+	stattrack::spawn_stattrack();
 
 	let port = 1234;
 	let addr = SocketAddrV6::new(Ipv6Addr::UNSPECIFIED, port, 0, 0);
@@ -75,7 +78,6 @@ fn main() {
 	for stream in server.incoming() {
 		match stream {
 			Ok(socket) => {
-				println!("new client");
 				reader_thread(socket, lut.clone());
 			},
 			Err(e) => println!("couldn't get client: {e:?}"),
