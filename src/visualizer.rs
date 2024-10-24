@@ -1,15 +1,21 @@
-use svg::node::element::{Group, Polygon};
 use std::fs;
-
+use std::ops::Mul;
 use geo::{Coord, CoordsIter, Geometry, MultiPolygon};
-use image::{ImageBuffer, Rgb};
-use image::imageops::{flip_vertical, interpolate_bilinear};
-use imageproc::drawing::{draw_antialiased_line_segment_mut, draw_line_segment_mut, Blend};
-use imageproc::pixelops::interpolate;
+use image::{
+	imageops::{flip_vertical, interpolate_bilinear},
+	ImageBuffer,
+	Rgb,
+};
+use imageproc::{
+	drawing::{draw_antialiased_line_segment_mut, draw_line_segment_mut, Blend},
+	pixelops::interpolate,
+};
 use petgraph::visit::Walker;
 use prost::Message;
-use svg::Document;
-use svg::node::element::Path;
+use svg::{
+	node::element::{Group, Path, Polygon},
+	Document,
+};
 use wkt::TryFromWkt;
 
 #[derive(Clone, Debug)]
@@ -26,14 +32,16 @@ pub mod protobufs {
 	include!(concat!(env!("OUT_DIR"), "/wire.rs"));
 }
 
-static min_lon: f64 = 47.2;
-static min_lat: f64 = 5.8;
-static max_lon: f64 = 55.2;
-static max_lat: f64 = 15.2;
+static MIN_LON: f64 = 47.2;
+static MIN_LAT: f64 = 5.8;
+static MAX_LON: f64 = 55.2;
+static MAX_LAT: f64 = 15.2;
+
+static SCALE: f64 = 100.0;
 
 fn main() {
 	let bezirke = protobufs::File::decode(
-		fs::read("/home/flareflo/tp_per/group-b/geodata/result/geodata/bezirke-12.geodata")
+		fs::read("/home/flareflo/tp_per/group-b/geodata/build/bezirke-12.geodata")
 			.unwrap()
 			.as_slice(),
 	)
@@ -49,27 +57,52 @@ fn main() {
 			location:   Geometry::try_from_wkt_str(&e.wkt).unwrap(),
 		})
 		.collect();
-	let mut document = Document::new().set("viewBox", "0 0 100 100");
+	let mut document = Document::new().set(
+		"viewBox",
+		format!(
+			"{} {} {} {}",
+			MIN_LAT.mul(SCALE) as i32, MIN_LON.mul(SCALE) as i32, MAX_LAT.mul(SCALE) as i32, MAX_LON.mul(SCALE) as i32
+		),
+	);
+		// .set("width", "1000")
+		// .set("height", "1000");
 
 	// Load the GeoJSON file and extract the features
 	for bezirk in parsed {
 		document = draw_polygons(document, bezirk);
 	}
-	    svg::save("multipolygon.svg", &document).expect("Failed to save SVG file");
+	svg::save("multipolygon.svg", &document).expect("Failed to save SVG file");
 }
 
 fn draw_polygons(mut document: Document, bezirk: Bezirk) -> Document {
-	let geo: &MultiPolygon= &bezirk.location.try_into().unwrap();
-	    for polygon in geo.iter() {
-        let svg_polygon = Polygon::new()
-            .set("fill", "blue")
-            .set("stroke", "black")
-            .set("stroke-width", 1)
-            .set("points", polygon.exterior().points().map(|p| {
-                format!("{},{}", p.x(), p.y())
-            }).collect::<Vec<String>>().join(" "));
+	let geo: &MultiPolygon = &bezirk.location.try_into().unwrap();
+	let colors = [
+		"black",
+		"hotpink",
+		"orchid",
+		"violet",
+		"palevioletred",
+		"pink",
+		"plum",
+		"thistle",
+	];
+	for polygon in geo.iter() {
+		let svg_polygon = Polygon::new()
+			.set("fill", "none")
+			.set("stroke", colors[bezirk.parents.len()])
+			.set("stroke-width", 0.01 * SCALE)
+			.set(
+				"points",
+				polygon
+					.exterior()
+					.points()
+					.map(|p| format!("{},{}", p.x() * SCALE, p.y() * SCALE))
+					.collect::<Vec<String>>()
+					.join(" "),
+			)
+			.set("transform", format!("scale(1, 1) transform(0, -{})", MIN_LAT.mul(SCALE)));
 
-        document = document.add(Group::new().add(svg_polygon));
-    }
+		document = document.add(Group::new().add(svg_polygon));
+	}
 	document
 }
