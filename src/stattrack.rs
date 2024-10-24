@@ -1,8 +1,9 @@
-use std::sync::atomic::AtomicUsize;
-use std::sync::atomic::Ordering::Relaxed;
-use std::thread;
-use std::thread::sleep;
-use std::time::Duration;
+use std::{
+	sync::atomic::{AtomicUsize, Ordering::Relaxed},
+	thread,
+	thread::sleep,
+	time::Duration,
+};
 
 static REQS: AtomicUsize = AtomicUsize::new(0);
 
@@ -11,12 +12,10 @@ pub fn log_req() {
 }
 
 pub fn spawn_stattrack() {
-	thread::spawn(||{
-		loop {
-			let last = REQS.load(Relaxed) / 1000;
-			REQS.store(0, Relaxed);
-			println!("{last}k/s");
-			sleep(Duration::from_secs(1));
-		}
+	thread::spawn(|| loop {
+		let last = REQS.load(Relaxed) / 1000;
+		REQS.store(0, Relaxed);
+		println!("{last}k/s");
+		sleep(Duration::from_secs(1));
 	});
 }

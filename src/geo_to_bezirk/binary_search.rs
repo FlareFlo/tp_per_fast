@@ -1,10 +1,8 @@
 use geo::{Contains, Coord, Intersects, Point, Rect};
 
-use crate::{Bezirk, BezirkeData};
-use crate::geo_to_bezirk::GeoToBezirk;
+use crate::{geo_to_bezirk::GeoToBezirk, Bezirk, BezirkeData};
 
-#[derive(Debug)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct BinarySearch {
 	chunks: Vec<(Rect, Vec<Bezirk>)>,
 }
@@ -36,16 +34,20 @@ impl BinarySearch {
 	}
 
 	pub fn new_with_defaults(subdivisions: usize, bezirke: BezirkeData) -> Self {
-		Self::new(subdivisions, Rect::new(
-					Coord {
-						x: 7.042,
-						y: 53.745,
-					},
-					Coord {
-						x: 14.019,
-						y: 47.588,
-					},
-				), bezirke.data.as_slice())
+		Self::new(
+			subdivisions,
+			Rect::new(
+				Coord {
+					x: 7.042,
+					y: 53.745,
+				},
+				Coord {
+					x: 14.019,
+					y: 47.588,
+				},
+			),
+			bezirke.data.as_slice(),
+		)
 	}
 
 	fn from_square(

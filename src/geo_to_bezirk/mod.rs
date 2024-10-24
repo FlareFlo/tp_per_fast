@@ -4,6 +4,8 @@ pub mod binary_search;
 mod naive_linear;
 pub mod rtree;
 
-pub trait GeoToBezirk where Self: Sized {
+pub trait GeoToBezirk
+where
+	Self: Sized, {
 	fn lookup(&self, long: f64, lat: f64) -> Option<&Bezirk>;
 }

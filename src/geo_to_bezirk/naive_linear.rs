@@ -1,9 +1,9 @@
 use geo::{Contains, Point};
-use crate::Bezirk;
-use crate::geo_to_bezirk::GeoToBezirk;
+
+use crate::{geo_to_bezirk::GeoToBezirk, Bezirk};
 
 pub struct NaiveLinear {
-	bezirke:  Vec<Bezirk>,
+	bezirke: Vec<Bezirk>,
 }
 
 impl GeoToBezirk for NaiveLinear {

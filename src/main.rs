@@ -1,8 +1,7 @@
-mod reader_thread;
 mod geo_to_bezirk;
+mod reader_thread;
 mod stattrack;
 
-use crate::geo_to_bezirk::rtree::RStarTree;
 use std::{
 	fs,
 	net::{Ipv6Addr, SocketAddrV6, TcpListener},
@@ -13,14 +12,12 @@ use std::{
 };
 
 use geo::Geometry;
+use geo_to_bezirk::binary_search::BinarySearch;
 use nix::sys::{socket, socket::sockopt::ReusePort};
 use prost::Message;
 use wkt::TryFromWkt;
-use geo_to_bezirk::binary_search::BinarySearch;
-use crate::{
-	protobufs::File,
-	reader_thread::reader_thread,
-};
+
+use crate::{geo_to_bezirk::rtree::RStarTree, protobufs::File, reader_thread::reader_thread};
 
 pub mod protobufs {
 	pub use Bezirk as ProtobufBezirk;
@@ -29,7 +26,7 @@ pub mod protobufs {
 }
 
 pub struct BezirkeData {
-	pub data:           Vec<Bezirk>,
+	pub data: Vec<Bezirk>,
 }
 
 #[derive(Clone, Debug)]
@@ -53,9 +50,7 @@ impl BezirkeData {
 			})
 			.collect();
 
-		Self {
-			data:           parsed,
-		}
+		Self { data: parsed }
 	}
 }
 

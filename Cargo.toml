@@ -14,6 +14,8 @@ geo = "0.28.0"
 wkt = "0.11"
 rstar = "0.12.0"
 petgraph = "0.6.5"
+image = "0.25.4"
+imageproc = "0.25.0"
 
 [[bin]]
 name = "server"
