@@ -574,6 +574,7 @@ version = "0.1.0"
 dependencies = [
  "geo",
  "nix",
+ "petgraph",
  "prost",
  "prost-build",
  "prost-types",
