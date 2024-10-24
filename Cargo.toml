@@ -16,6 +16,7 @@ rstar = "0.12.0"
 petgraph = "0.6.5"
 image = "0.25.4"
 imageproc = "0.25.0"
+svg = "0.18.0"
 
 [[bin]]
 name = "server"
