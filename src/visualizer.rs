@@ -1,5 +1,5 @@
-use std::fs;
-use std::ops::Mul;
+use std::{fs, ops::Mul};
+
 use geo::{Coord, CoordsIter, Geometry, MultiPolygon};
 use image::{
 	imageops::{flip_vertical, interpolate_bilinear},
@@ -37,7 +37,7 @@ static MIN_LAT: f64 = 5.8;
 static MAX_LON: f64 = 55.2;
 static MAX_LAT: f64 = 15.2;
 
-static SCALE: f64 = 100.0;
+static SCALE: f64 = 1.0;
 
 fn main() {
 	let bezirke = protobufs::File::decode(
@@ -57,21 +57,27 @@ fn main() {
 			location:   Geometry::try_from_wkt_str(&e.wkt).unwrap(),
 		})
 		.collect();
-	let mut document = Document::new().set(
-		"viewBox",
-		format!(
-			"{} {} {} {}",
-			MIN_LAT.mul(SCALE) as i32, MIN_LON.mul(SCALE) as i32, MAX_LAT.mul(SCALE) as i32, MAX_LON.mul(SCALE) as i32
-		),
-	);
-		// .set("width", "1000")
-		// .set("height", "1000");
+	let mut document = Document::new()
+		.set(
+			"viewBox",
+			format!(
+				"{} {} {} {}",
+				MIN_LAT.mul(SCALE) as i32,
+				MIN_LON.mul(SCALE) as i32,
+				MAX_LAT.mul(SCALE) as i32,
+				MAX_LON.mul(SCALE) as i32
+			),
+		)
+		.set("transform", "scale(1, -1)");
 
 	// Load the GeoJSON file and extract the features
 	for bezirk in parsed {
 		document = draw_polygons(document, bezirk);
 	}
-	svg::save("multipolygon.svg", &document).expect("Failed to save SVG file");
+	let mut res = Vec::with_capacity(30_000_000);
+	svg::write(&mut res, &document).unwrap();
+
+	fs::write("multipolygon.svg", &res).unwrap()
 }
 
 fn draw_polygons(mut document: Document, bezirk: Bezirk) -> Document {
@@ -99,8 +105,7 @@ fn draw_polygons(mut document: Document, bezirk: Bezirk) -> Document {
 					.map(|p| format!("{},{}", p.x() * SCALE, p.y() * SCALE))
 					.collect::<Vec<String>>()
 					.join(" "),
-			)
-			.set("transform", format!("scale(1, 1) transform(0, -{})", MIN_LAT.mul(SCALE)));
+			);
 
 		document = document.add(Group::new().add(svg_polygon));
 	}
