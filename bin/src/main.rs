@@ -9,7 +9,7 @@ use geo_to_bezirk::binary_search::BinarySearch;
 use nix::sys::{socket, socket::sockopt::ReusePort};
 use prost::Message;
 use wkt::TryFromWkt;
-
+use protodefs::{from_env, File};
 use crate::{geo_to_bezirk::rtree::RStarTree, reader_thread::reader_thread};
 
 pub struct BezirkeData {

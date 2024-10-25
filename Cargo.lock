@@ -131,6 +131,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "bin"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "geo",
+ "image",
+ "imageproc",
+ "nix",
+ "petgraph",
+ "prost",
+ "protodef",
+ "rstar",
+ "signal-hook",
+ "svg",
+ "wkt",
+]
+
+[[package]]
 name = "bit_field"
 version = "0.10.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1487,7 +1505,8 @@ dependencies = [
  "imageproc",
  "nix",
  "petgraph",
- "protodef",
+ "prost",
+ "prost-build",
  "rstar",
  "signal-hook",
  "svg",

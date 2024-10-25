@@ -6,16 +6,9 @@ use petgraph::{
 };
 use prost::Message;
 
-use crate::protobufs::Bezirk;
-
-pub mod protobufs {
-	pub use Bezirk as ProtobufBezirk;
-	include!(concat!(env!("OUT_DIR"), "/geodata.rs"));
-	include!(concat!(env!("OUT_DIR"), "/wire.rs"));
-}
 
 pub fn main() {
-	let bezirke = protobufs::File::decode(
+	let bezirke = protodefs::File::decode(
 		fs::read("/home/flareflo/tp_per/group-b/geodata/result/geodata/bezirke-12.geodata")
 			.unwrap()
 			.as_slice(),

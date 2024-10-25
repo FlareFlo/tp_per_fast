@@ -1,3 +1,8 @@
+use protodefs::LocationUpdateResponse;
+use protodefs::client_response::Response;
+use protodefs::client_message::Request;
+use protodefs::client_response::Code;
+use protodefs::ClientMessage;
 use std::{
 	io::{Read, Write},
 	net::TcpStream,
@@ -9,23 +14,18 @@ use prost::Message;
 
 use crate::{
 	geo_to_bezirk::GeoToBezirk,
-	protobufs::{
-		client_message::Request,
-		client_response::{Code, Response},
-		LocationUpdateResponse,
-	},
 };
 
 pub fn reader_thread(mut socket: TcpStream, lut: Arc<impl GeoToBezirk + Sync + Send + 'static>) {
 	let _handle = spawn(move || loop {
-		let mut response = crate::protobufs::ClientResponse::default();
+		let mut response = protodefs::ClientResponse::default();
 		let len = &mut [0; 4];
 		socket.read_exact(len).unwrap();
 		let parsed_len = u32::from_be_bytes(*len);
 
 		let mut res = vec![0; parsed_len as usize];
 		socket.read_exact(&mut res).unwrap();
-		let request = crate::protobufs::ClientMessage::decode(res.as_slice()).unwrap();
+		let request = protodefs::ClientMessage::decode(res.as_slice()).unwrap();
 		response.request_id = request.request_id;
 		response.set_code(Code::Ok);
 

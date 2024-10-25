@@ -16,7 +16,7 @@ use svg::{
 	Document,
 };
 use wkt::TryFromWkt;
-use protodef::from_env;
+use protodefs::from_env;
 
 #[derive(Clone, Debug)]
 pub struct Bezirk {

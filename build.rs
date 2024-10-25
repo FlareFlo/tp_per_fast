@@ -1,7 +1,7 @@
 use std::env;
 use std::io::Result;
 fn main() -> Result<()> {
-	dotenv::from_path("../.env").unwrap();
+	dotenv::from_path(".env").unwrap();
 	let p = env::var("PROT_DEF").unwrap();
 
 	let includes: &[&str] = &[&p];
