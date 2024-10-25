@@ -6,16 +6,11 @@ edition = "2021"
 [dependencies]
 nix = {version = "0.29.0", features = ["socket"]}
 
-signal-hook = "0.3.17"
 geo = "0.28.0"
 wkt = "0.11"
 rstar = "0.12.0"
 petgraph = "0.6.5"
-image = "0.25.4"
-imageproc = "0.25.0"
 svg = "0.18.0"
-dotenv = "0.15.0"
-protodef = {path = "../protodef"}
 prost = "0.13.3"
 
 
