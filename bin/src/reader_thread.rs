@@ -2,7 +2,6 @@ use protodefs::LocationUpdateResponse;
 use protodefs::client_response::Response;
 use protodefs::client_message::Request;
 use protodefs::client_response::Code;
-use protodefs::ClientMessage;
 use std::{
 	io::{Read, Write},
 	net::TcpStream,

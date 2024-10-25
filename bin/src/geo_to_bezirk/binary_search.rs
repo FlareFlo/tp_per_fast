@@ -26,6 +26,7 @@ impl GeoToBezirk for BinarySearch {
 	}
 }
 
+#[allow(unused)]
 impl BinarySearch {
 	pub fn new(subdivisions: usize, starting_square: Rect, bezirke: &[Bezirk]) -> Self {
 		let mut chunks = Vec::new();

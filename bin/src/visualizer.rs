@@ -1,18 +1,8 @@
 use std::{fs, ops::Mul};
 
-use geo::{Coord, CoordsIter, Geometry, MultiPolygon};
-use image::{
-	imageops::{flip_vertical, interpolate_bilinear},
-	ImageBuffer,
-	Rgb,
-};
-use imageproc::{
-	drawing::{draw_antialiased_line_segment_mut, draw_line_segment_mut, Blend},
-	pixelops::interpolate,
-};
-use petgraph::visit::Walker;
+use geo::{Geometry, MultiPolygon};
 use svg::{
-	node::element::{Group, Path, Polygon},
+	node::element::{Group, Polygon},
 	Document,
 };
 use wkt::TryFromWkt;

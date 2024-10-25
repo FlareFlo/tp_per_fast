@@ -2,12 +2,9 @@ mod geo_to_bezirk;
 mod reader_thread;
 mod stattrack;
 
-use std::{env, fs, net::{Ipv6Addr, SocketAddrV6, TcpListener}, os::fd::AsFd, sync::Arc, thread::sleep, time::Duration};
-use dotenv::dotenv;
+use std::{net::{Ipv6Addr, SocketAddrV6, TcpListener}, os::fd::AsFd, sync::Arc, thread::sleep, time::Duration};
 use geo::Geometry;
-use geo_to_bezirk::binary_search::BinarySearch;
 use nix::sys::{socket, socket::sockopt::ReusePort};
-use prost::Message;
 use wkt::TryFromWkt;
 use protodefs::{from_env, File};
 use crate::{geo_to_bezirk::rtree::RStarTree, reader_thread::reader_thread};

@@ -1,8 +1,7 @@
-use geo::{BoundingRect, Coord, Point, Rect};
+use geo::BoundingRect;
 use rstar::{
 	primitives::{GeomWithData, Rectangle},
 	RTree,
-	AABB,
 };
 
 use crate::{geo_to_bezirk::GeoToBezirk, stattrack::log_req, Bezirk};
