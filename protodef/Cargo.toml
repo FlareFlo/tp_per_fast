@@ -1,0 +1,12 @@
+[package]
+name = "protodef"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv = "0.15.0"
+prost = "0.13.3"
+
+[build-dependencies]
+dotenv = "0.15.0"
+prost-build = "0.13"

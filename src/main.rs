@@ -2,28 +2,15 @@ mod geo_to_bezirk;
 mod reader_thread;
 mod stattrack;
 
-use std::{
-	fs,
-	net::{Ipv6Addr, SocketAddrV6, TcpListener},
-	os::fd::AsFd,
-	sync::Arc,
-	thread::sleep,
-	time::Duration,
-};
-
+use std::{env, fs, net::{Ipv6Addr, SocketAddrV6, TcpListener}, os::fd::AsFd, sync::Arc, thread::sleep, time::Duration};
+use dotenv::dotenv;
 use geo::Geometry;
 use geo_to_bezirk::binary_search::BinarySearch;
 use nix::sys::{socket, socket::sockopt::ReusePort};
 use prost::Message;
 use wkt::TryFromWkt;
 
-use crate::{geo_to_bezirk::rtree::RStarTree, protobufs::File, reader_thread::reader_thread};
-
-pub mod protobufs {
-	pub use Bezirk as ProtobufBezirk;
-	include!(concat!(env!("OUT_DIR"), "/geodata.rs"));
-	include!(concat!(env!("OUT_DIR"), "/wire.rs"));
-}
+use crate::{geo_to_bezirk::rtree::RStarTree, reader_thread::reader_thread};
 
 pub struct BezirkeData {
 	pub data: Vec<Bezirk>,
@@ -55,12 +42,7 @@ impl BezirkeData {
 }
 
 fn main() {
-	let bezirke = protobufs::File::decode(
-		fs::read("/home/flareflo/tp_per/group-b/geodata/result/geodata/bezirke-12.geodata")
-			.unwrap()
-			.as_slice(),
-	)
-	.unwrap();
+	let bezirke = from_env();
 	let bezirke = BezirkeData::new(bezirke);
 	let lut = Arc::new(RStarTree::new(bezirke.data));
 	stattrack::spawn_stattrack();

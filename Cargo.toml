@@ -6,9 +6,6 @@ edition = "2021"
 [dependencies]
 nix = {version = "0.29.0", features = ["socket"]}
 
-prost = "0.13"
-# Only necessary if using Protobuf well-known types:
-prost-types = "0.13"
 signal-hook = "0.3.17"
 geo = "0.28.0"
 wkt = "0.11"
@@ -17,6 +14,8 @@ petgraph = "0.6.5"
 image = "0.25.4"
 imageproc = "0.25.0"
 svg = "0.18.0"
+dotenv = "0.15.0"
+protodef = {path = "./protodef"}
 
 [[bin]]
 name = "server"
@@ -32,4 +31,3 @@ path = "src/tree.rs"
 
 
 [build-dependencies]
-prost-build = "0.13"

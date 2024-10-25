@@ -11,12 +11,12 @@ use imageproc::{
 	pixelops::interpolate,
 };
 use petgraph::visit::Walker;
-use prost::Message;
 use svg::{
 	node::element::{Group, Path, Polygon},
 	Document,
 };
 use wkt::TryFromWkt;
+use protodef::from_env;
 
 #[derive(Clone, Debug)]
 pub struct Bezirk {
@@ -24,12 +24,6 @@ pub struct Bezirk {
 	pub parents:    Vec<u64>,
 	pub name:       String,
 	pub location:   Geometry,
-}
-
-pub mod protobufs {
-	pub use Bezirk as ProtobufBezirk;
-	include!(concat!(env!("OUT_DIR"), "/geodata.rs"));
-	include!(concat!(env!("OUT_DIR"), "/wire.rs"));
 }
 
 static MIN_LON: f64 = 47.2;
@@ -40,12 +34,7 @@ static MAX_LAT: f64 = 15.2;
 static SCALE: f64 = 1.0;
 
 fn main() {
-	let bezirke = protobufs::File::decode(
-		fs::read("/home/flareflo/tp_per/group-b/geodata/build/bezirke-12.geodata")
-			.unwrap()
-			.as_slice(),
-	)
-	.unwrap();
+	let bezirke = from_env();
 
 	let parsed: Vec<_> = bezirke
 		.bezirke
