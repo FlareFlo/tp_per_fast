@@ -19,12 +19,18 @@
           version = "0.1.0";
           src = ./.;
 
+          #extraResources = [ ./.env ];
           # Add protobuf as a build dependency
           nativeBuildInputs = [ pkgs.protobuf ];
 
           # Optional: extra arguments for cargo
           cargoBuildOptions = ["--release"];
           cargoLock = {lockFile = ./Cargo.lock; };
+
+          preConfigure = ''
+            export IN_NIX=1
+            ln -s ${/home/flareflo/tp_per/group-b/geodata} ./geodata
+        '';
         };
 
         # Development shell with Rust toolchain

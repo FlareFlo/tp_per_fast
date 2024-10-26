@@ -1,3 +1,5 @@
 /target
 .idea
 .env
+result
+multipolygon.svg

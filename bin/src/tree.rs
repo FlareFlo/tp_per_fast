@@ -5,15 +5,11 @@ use petgraph::{
 	graph::DiGraph,
 };
 use prost::Message;
+use protodefs::from_env;
 
 
 pub fn main() {
-	let bezirke = protodefs::File::decode(
-		fs::read("/home/flareflo/tp_per/group-b/geodata/result/geodata/bezirke-12.geodata")
-			.unwrap()
-			.as_slice(),
-	)
-	.unwrap();
+	let bezirke = from_env();
 
 	let mut graph = DiGraph::<_, ()>::new();
 
