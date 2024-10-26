@@ -7,7 +7,7 @@ include!(concat!(env!("OUT_DIR"), "/wire.rs"));
 
 pub fn from_env() -> File {
 	dotenv().unwrap();
-	let p = env::var("GEO_PATH").unwrap();
+	let p = env::var("GEO_PATH").unwrap() + "/build/bezirke-12.geodata";
 	let bezirke = File::decode(
 		fs::read(p)
 			.unwrap()
