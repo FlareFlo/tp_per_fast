@@ -11,7 +11,7 @@ pub fn from_env() -> File {
 	} else {
 		dotenv().unwrap();
 		env::var("GEO_PATH").unwrap()
-	} + "/build/bezirke-12.geodata";
+	} + "/result/geodata/bezirke-12.geodata";
 
 	let bezirke = File::decode(
 		fs::read(p)
